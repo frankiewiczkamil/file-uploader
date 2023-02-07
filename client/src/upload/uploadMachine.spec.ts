@@ -74,6 +74,6 @@ describe('uploadMachine', () => {
       });
       service.send('RETRY_REQUESTED');
     });
-    assert.equal((event as EventDone).type, 'done.invoke.inProgressInvokeUpload');
+    assert.equal((event as EventDone).type, 'done.invoke.invokeUpload');
   });
 });

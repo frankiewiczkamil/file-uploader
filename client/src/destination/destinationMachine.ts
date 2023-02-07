@@ -5,10 +5,11 @@ type Services = {
     data: { path: string };
   };
 };
-export type EventDone = { type: 'done.invoke.inProgressInvoke'; data: { path: string } };
-export type EventFailed = { type: 'error.platform.inProgressInvoke'; data: { message: string } };
+export type EventDone = { type: 'done.invoke.invoke'; data: { path: string } };
+export type EventFailed = { type: 'error.platform.invoke'; data: { message: string } };
 export type EventRetryRequested = { type: 'RETRY_REQUESTED' };
 type DestinationResponse = { path: string };
+export type FetchDestinationPath = () => Promise<DestinationResponse>;
 
 function onDoneReturnDestinationPath(_ctx: {}, event: DoneInvokeEvent<DestinationResponse>): string {
   return event.data.path;
@@ -28,7 +29,7 @@ export const destinationMachine =
     states: {
       inProgress: {
         invoke: {
-          id: 'inProgressInvoke',
+          id: 'invoke',
           src: 'fetchDestinationPath',
           onDone: 'done',
           onError: 'failed',
