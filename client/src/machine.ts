@@ -33,7 +33,9 @@ type EventUploadingDone = { type: 'done.invoke.invokeUploadingFile' };
 type EventUploadingFailed = { type: 'error.platform.invokeUploadingFile' } & EventWithErrorMsg;
 type EventNotifyingDone = { type: 'done.invoke.invokeNotifying' };
 type EventNotifyingFailed = { type: 'error.platform.invokeNotifying' } & EventWithErrorMsg;
-export type EventRetryRequested = { type: 'RETRY_REQUESTED' };
+export type EventRetryFetchingPathRequested = { type: 'RETRY_FETCHING_PATH_REQUESTED' };
+export type EventRetryUploadingRequested = { type: 'RETRY_UPLOADING_REQUESTED' };
+export type EventRetryNotifyingRequested = { type: 'RETRY_NOTIFYING_REQUESTED' };
 
 type Event =
   | EventFetchingPathDone
@@ -42,7 +44,9 @@ type Event =
   | EventUploadingFailed
   | EventNotifyingDone
   | EventNotifyingFailed
-  | EventRetryRequested;
+  | EventRetryFetchingPathRequested
+  | EventRetryUploadingRequested
+  | EventRetryNotifyingRequested;
 
 type WithErrorMsg = { message: string };
 export type WithDestinationPath = { destinationPath: string };
@@ -76,6 +80,11 @@ export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinat
             actions: addDestinationPathToCtx,
           },
         },
+        on: {
+          RETRY_FETCHING_PATH_REQUESTED: {
+            target: 'fetchingPath',
+          },
+        },
       },
       uploadingFile: {
         invoke: {
@@ -87,6 +96,11 @@ export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinat
           }),
           data: selectDestinationPathFromCtx,
           onDone: 'notifying',
+        },
+        on: {
+          RETRY_UPLOADING_REQUESTED: {
+            target: 'uploadingFile',
+          },
         },
       },
       notifying: {
@@ -100,10 +114,14 @@ export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinat
           data: selectDestinationPathFromCtx,
           onDone: 'done',
         },
+        on: {
+          RETRY_NOTIFYING_REQUESTED: {
+            target: 'notifying',
+          },
+        },
       },
       done: {
         type: 'final',
       },
-      failed: {},
     },
   });

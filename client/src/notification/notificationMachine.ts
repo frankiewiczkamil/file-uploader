@@ -2,8 +2,8 @@ import { createMachine } from 'xstate';
 
 export type EventDone = { type: 'done.invoke.invokeNotify' };
 export type EventFailed = { type: 'error.platform.invokeNotify'; data: { message: string } };
-export type EventRetryRequested = { type: 'RETRY_REQUESTED' };
-type Event = EventDone | EventFailed | EventRetryRequested;
+
+type Event = EventDone | EventFailed;
 
 type TypeState =
   | {
@@ -39,9 +39,7 @@ export const notificationMachine =
         },
       },
       failed: {
-        on: {
-          RETRY_REQUESTED: 'inProgress',
-        },
+        type: 'final',
       },
       done: {
         type: 'final',

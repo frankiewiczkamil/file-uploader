@@ -7,7 +7,6 @@ type Services = {
 };
 export type EventDone = { type: 'done.invoke.invoke'; data: { path: string } };
 export type EventFailed = { type: 'error.platform.invoke'; data: { message: string } };
-export type EventRetryRequested = { type: 'RETRY_REQUESTED' };
 type DestinationResponse = { path: string };
 export type FetchDestinationPath = () => Promise<DestinationResponse>;
 
@@ -23,7 +22,7 @@ export const destinationMachine =
     tsTypes: {} as import('./destinationMachine.typegen').Typegen0,
     schema: {
       services: {} as Services,
-      events: {} as EventDone | EventFailed | EventRetryRequested,
+      events: {} as EventDone | EventFailed,
     },
     initial: 'inProgress',
     states: {
@@ -36,9 +35,7 @@ export const destinationMachine =
         },
       },
       failed: {
-        on: {
-          RETRY_REQUESTED: 'inProgress',
-        },
+        type: 'final',
       },
       done: {
         type: 'final',
