@@ -2,8 +2,9 @@ import { createMachine } from 'xstate';
 
 export type EventDone = { type: 'done.invoke.invokeUpload' };
 export type EventFailed = { type: 'error.platform.invokeUpload'; data: { message: string } };
+export type EventCanceled = { type: 'UPLOADING_CANCELED' };
 
-type Event = EventDone | EventFailed;
+type Event = EventDone | EventFailed | EventCanceled;
 
 type TypeState =
   | {
@@ -16,6 +17,10 @@ type TypeState =
     }
   | {
       value: 'failed';
+      context: string;
+    }
+  | {
+      value: 'canceled';
       context: string;
     };
 
@@ -37,8 +42,16 @@ export const uploadMachine =
           onDone: 'done',
           onError: 'failed',
         },
+        on: {
+          UPLOADING_CANCELED: {
+            target: 'canceled',
+          },
+        },
       },
       failed: {
+        type: 'final',
+      },
+      canceled: {
         type: 'final',
       },
       done: {
