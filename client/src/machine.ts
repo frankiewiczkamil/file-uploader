@@ -33,6 +33,7 @@ type EventUploadingDone = { type: 'done.invoke.invokeUploadingFile' };
 type EventUploadingFailed = { type: 'error.platform.invokeUploadingFile' } & EventWithErrorMsg;
 type EventNotifyingDone = { type: 'done.invoke.invokeNotifying' };
 type EventNotifyingFailed = { type: 'error.platform.invokeNotifying' } & EventWithErrorMsg;
+export type EventRetryRequested = { type: 'RETRY_REQUESTED' };
 export type EventRetryFetchingPathRequested = { type: 'RETRY_FETCHING_PATH_REQUESTED' };
 export type EventRetryUploadingRequested = { type: 'RETRY_UPLOADING_REQUESTED' };
 export type EventRetryNotifyingRequested = { type: 'RETRY_NOTIFYING_REQUESTED' };
@@ -44,6 +45,7 @@ type Event =
   | EventUploadingFailed
   | EventNotifyingDone
   | EventNotifyingFailed
+  | EventRetryRequested
   | EventRetryFetchingPathRequested
   | EventRetryUploadingRequested
   | EventRetryNotifyingRequested;
@@ -69,6 +71,7 @@ export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinat
     states: {
       fetchingPath: {
         invoke: {
+          autoForward: true,
           id: 'invokeFetchingPath',
           src: destinationMachine.withConfig({
             services: {
@@ -80,14 +83,10 @@ export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinat
             actions: addDestinationPathToCtx,
           },
         },
-        on: {
-          RETRY_FETCHING_PATH_REQUESTED: {
-            target: 'fetchingPath',
-          },
-        },
       },
       uploadingFile: {
         invoke: {
+          autoForward: true,
           id: 'invokeUploadingFile',
           src: uploadMachine.withConfig({
             services: {
@@ -97,14 +96,10 @@ export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinat
           data: selectDestinationPathFromCtx,
           onDone: 'notifying',
         },
-        on: {
-          RETRY_UPLOADING_REQUESTED: {
-            target: 'uploadingFile',
-          },
-        },
       },
       notifying: {
         invoke: {
+          autoForward: true,
           id: 'invokeNotifying',
           src: notificationMachine.withConfig({
             services: {
@@ -113,11 +108,6 @@ export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinat
           }),
           data: selectDestinationPathFromCtx,
           onDone: 'done',
-        },
-        on: {
-          RETRY_NOTIFYING_REQUESTED: {
-            target: 'notifying',
-          },
         },
       },
       done: {

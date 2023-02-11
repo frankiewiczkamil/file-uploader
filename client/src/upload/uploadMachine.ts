@@ -1,10 +1,10 @@
 import { createMachine } from 'xstate';
+import { CancelRequested, RetryRequested } from '../common';
 
 export type EventDone = { type: 'done.invoke.invokeUpload' };
 export type EventFailed = { type: 'error.platform.invokeUpload'; data: { message: string } };
-export type EventCanceled = { type: 'UPLOADING_CANCELED' };
 
-type Event = EventDone | EventFailed | EventCanceled;
+type Event = EventDone | EventFailed | RetryRequested | CancelRequested;
 
 type TypeState =
   | {
@@ -43,16 +43,20 @@ export const uploadMachine =
           onError: 'failed',
         },
         on: {
-          UPLOADING_CANCELED: {
+          CANCEL_REQUESTED: {
             target: 'canceled',
           },
         },
       },
       failed: {
-        type: 'final',
+        on: {
+          RETRY_REQUESTED: 'inProgress',
+        },
       },
       canceled: {
-        type: 'final',
+        on: {
+          RETRY_REQUESTED: 'inProgress',
+        },
       },
       done: {
         type: 'final',

@@ -1,4 +1,5 @@
 import { createMachine, DoneInvokeEvent } from 'xstate';
+import { CancelRequested, RetryRequested } from '../common';
 
 type Services = {
   fetchDestinationPath: {
@@ -22,7 +23,7 @@ export const destinationMachine =
     tsTypes: {} as import('./destinationMachine.typegen').Typegen0,
     schema: {
       services: {} as Services,
-      events: {} as EventDone | EventFailed,
+      events: {} as EventDone | EventFailed | RetryRequested | CancelRequested,
     },
     initial: 'inProgress',
     states: {
@@ -33,9 +34,19 @@ export const destinationMachine =
           onDone: 'done',
           onError: 'failed',
         },
+        on: {
+          CANCEL_REQUESTED: 'canceled',
+        },
       },
       failed: {
-        type: 'final',
+        on: {
+          RETRY_REQUESTED: 'inProgress',
+        },
+      },
+      canceled: {
+        on: {
+          RETRY_REQUESTED: 'inProgress',
+        },
       },
       done: {
         type: 'final',

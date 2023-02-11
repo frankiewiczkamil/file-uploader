@@ -1,9 +1,10 @@
 import { createMachine } from 'xstate';
+import { CancelRequested, RetryRequested } from '../common';
 
 export type EventDone = { type: 'done.invoke.invokeNotify' };
 export type EventFailed = { type: 'error.platform.invokeNotify'; data: { message: string } };
 
-type Event = EventDone | EventFailed;
+type Event = EventDone | EventFailed | RetryRequested | CancelRequested;
 
 type TypeState =
   | {
@@ -16,6 +17,10 @@ type TypeState =
     }
   | {
       value: 'failed';
+      context: string;
+    }
+  | {
+      value: 'canceled';
       context: string;
     };
 
@@ -37,9 +42,19 @@ export const notificationMachine =
           },
           onError: 'failed',
         },
+        on: {
+          CANCEL_REQUESTED: 'canceled',
+        },
       },
       failed: {
-        type: 'final',
+        on: {
+          RETRY_REQUESTED: 'inProgress',
+        },
+      },
+      canceled: {
+        on: {
+          RETRY_REQUESTED: 'inProgress',
+        },
       },
       done: {
         type: 'final',

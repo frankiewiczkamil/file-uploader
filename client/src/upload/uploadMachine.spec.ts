@@ -1,6 +1,7 @@
 import { EventFailed, uploadMachine } from './uploadMachine';
 import { assert, describe, it } from 'vitest';
-import { interpret, Interpreter, InterpreterStatus } from 'xstate';
+import { interpret, Interpreter } from 'xstate';
+import { isPending } from '../common';
 
 describe('uploadMachine', () => {
   it('should end with done state when upload callback finishes successfully', async () => {
@@ -69,24 +70,11 @@ describe('uploadMachine', () => {
           }
         })
         .start();
-
-      console.log(interpretedMachine?.initialized);
-      console.log(interpretedMachine.status);
-      setImmediate(() => interpretedMachine.send('UPLOADING_CANCELED'));
+      setImmediate(() => interpretedMachine.send('CANCEL_REQUESTED'));
     });
     assert.isTrue(await isPending(task));
-    // @ts-ignore
-    assert.equal(interpretedMachine.status, InterpreterStatus.Running);
     await task;
     assert.isFalse(await isPending(task));
     assert.isFalse(finished);
-    // @ts-ignore
-    assert.equal(interpretedMachine.status, InterpreterStatus.Stopped);
   });
 });
-
-async function isPending(testedPromise: Promise<any>) {
-  const definitelyDifferentThing = {};
-  const winnerResult = await Promise.race([testedPromise, Promise.resolve(definitelyDifferentThing)]);
-  return winnerResult === definitelyDifferentThing;
-}
