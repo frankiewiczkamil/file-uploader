@@ -1,6 +1,7 @@
-import { fileUploadCoordinatorMachine, WithDestinationPath } from './machine';
+import { fileUploadCoordinatorMachine } from './machine';
 import { assert, describe, it } from 'vitest';
 import { interpret } from 'xstate';
+import { WithDestinationPath } from './UploadCoordinatorMachine';
 
 const destinationPath = 'mocked path';
 const FAILURE_ATTEMPTS = 3;
