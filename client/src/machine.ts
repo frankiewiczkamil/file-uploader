@@ -34,9 +34,7 @@ type EventUploadingFailed = { type: 'error.platform.invokeUploadingFile' } & Eve
 type EventNotifyingDone = { type: 'done.invoke.invokeNotifying' };
 type EventNotifyingFailed = { type: 'error.platform.invokeNotifying' } & EventWithErrorMsg;
 export type EventRetryRequested = { type: 'RETRY_REQUESTED' };
-export type EventRetryFetchingPathRequested = { type: 'RETRY_FETCHING_PATH_REQUESTED' };
-export type EventRetryUploadingRequested = { type: 'RETRY_UPLOADING_REQUESTED' };
-export type EventRetryNotifyingRequested = { type: 'RETRY_NOTIFYING_REQUESTED' };
+export type EventCancelRequested = { type: 'CANCEL_REQUESTED' };
 
 type Event =
   | EventFetchingPathDone
@@ -46,9 +44,7 @@ type Event =
   | EventNotifyingDone
   | EventNotifyingFailed
   | EventRetryRequested
-  | EventRetryFetchingPathRequested
-  | EventRetryUploadingRequested
-  | EventRetryNotifyingRequested;
+  | EventCancelRequested;
 
 type WithErrorMsg = { message: string };
 export type WithDestinationPath = { destinationPath: string };
