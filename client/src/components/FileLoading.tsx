@@ -1,5 +1,5 @@
 import { useMachine } from '@xstate/react';
-import { CoordinatorMachine } from '../UploadCoordinatorMachine';
+import { CoordinatorMachine } from '../services/UploadCoordinatorMachine';
 
 export function createFileLoadingContainer(machine: CoordinatorMachine) {
   return function FileLoadingContainer() {

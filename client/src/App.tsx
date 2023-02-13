@@ -2,8 +2,8 @@ import './App.css';
 import { createFileLoadingContainer } from './components/FileLoading';
 import React, { FC } from 'react';
 import createFilePicker from './components/FilePicker';
-import { CoordinatorMachine } from './UploadCoordinatorMachine';
-import { fileUploadCoordinatorMachine } from './machine';
+import { CoordinatorMachine } from './services/UploadCoordinatorMachine';
+import { fileUploadCoordinatorMachine } from './services/machine';
 
 async function uploadFileMock(path: string) {
   await new Promise((resolve) =>
