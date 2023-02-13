@@ -2,7 +2,11 @@
   "name": "file-uploader",
   "private": true,
   "version": "0.0.0",
+  "scripts": {
+    "dev": "concurrently '(cd server && npm run transpile:watch)' '(cd server && npm run dev)' '(cd client && npm run dev)' '(cd client && npm run generateTypes:watch)'"
+  },
   "devDependencies": {
+    "concurrently": "^7.6.0",
     "prettier": "2.8.3"
   }
 }
