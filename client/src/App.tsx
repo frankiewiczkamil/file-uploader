@@ -9,7 +9,7 @@ function createUploadMockCallback(file: File) {
   return async function uploadFileMock(path: string) {
     await new Promise((resolve) =>
       setTimeout(() => {
-        console.log('uploadFileMock: done', path);
+        console.log('uploadFileMock: done', path, file);
         resolve('');
       }, 5_000)
     );
@@ -23,7 +23,9 @@ async function fetchDestinationPath() {
       resolve('');
     }, 5_000)
   );
-  return { path: 'mocked path' };
+  const path = await fetch('http://localhost:3000/path').then((res) => res.json());
+  console.log('fetched upload path', path);
+  return path;
 }
 
 async function callNotificationApi(path: string) {
@@ -33,6 +35,7 @@ async function callNotificationApi(path: string) {
       resolve('');
     }, 5_000)
   );
+  await fetch(path);
 }
 
 type MachineFactory = (file: File) => CoordinatorMachine;
