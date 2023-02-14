@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "concurrently '(cd server && npm run transpile:watch)' '(cd server && npm run dev)' '(cd client && npm run dev)' '(cd client && npm run generateTypes:watch)'"
+    "dev": "concurrently '(cd server && npm run transpile:watch)' '(cd server && npm run dev)' '(cd client && npm run dev)' '(cd client && npm run generateTypes:watch)'",
+    "build": "concurrently '(cd server && npm run build)' '(cd client && npm run generateTypes && npm run build)'",
+    "start": "concurrently '(cd server && npm run start)' '(cd client && npm run preview)'"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",
