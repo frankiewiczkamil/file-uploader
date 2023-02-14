@@ -5,13 +5,15 @@ import createFilePicker from './components/FilePicker';
 import { CoordinatorMachine } from './services/UploadCoordinatorMachine';
 import { fileUploadCoordinatorMachine } from './services/machine';
 
-async function uploadFileMock(path: string) {
-  await new Promise((resolve) =>
-    setTimeout(() => {
-      console.log('uploadFileMock: done', path);
-      resolve('');
-    }, 5_000)
-  );
+function createUploadMockCallback(file: File) {
+  return async function uploadFileMock(path: string) {
+    await new Promise((resolve) =>
+      setTimeout(() => {
+        console.log('uploadFileMock: done', path);
+        resolve('');
+      }, 5_000)
+    );
+  };
 }
 
 async function fetchDestinationPath() {
@@ -33,13 +35,14 @@ async function callNotificationApi(path: string) {
   );
 }
 
-const machine: CoordinatorMachine = fileUploadCoordinatorMachine(fetchDestinationPath, uploadFileMock, callNotificationApi);
-const FileLoadingContainer = createFileLoadingContainer(machine);
+type MachineFactory = (file: File) => CoordinatorMachine;
+const machineFactory: MachineFactory = (file) => fileUploadCoordinatorMachine(fetchDestinationPath, createUploadMockCallback(file), callNotificationApi);
+const FileLoadingContainer = createFileLoadingContainer(machineFactory);
 
 const FileComponent: FC<{ file: File }> = (props) => (
   <>
     {props.file.name}
-    <FileLoadingContainer />
+    <FileLoadingContainer file={props.file} />
   </>
 );
 const FilePicker = createFilePicker(FileComponent);
