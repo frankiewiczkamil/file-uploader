@@ -9,7 +9,7 @@ const port = 3000;
 
 app
   .get('/path', (req: Request, res: Response) => {
-    res.send({ path: `http://localhost/upload/${uuid()}` });
+    res.send({ path: `http://localhost:3000/upload/${uuid()}` });
   })
   .get('/upload/:id', (req: Request, res: Response) => {
     res.send(req.params['id']);
