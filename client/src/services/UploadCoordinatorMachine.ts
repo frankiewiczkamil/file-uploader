@@ -1,4 +1,4 @@
-import { BaseActionObject, ResolveTypegenMeta, ServiceMap, StateMachine, StateSchema, TypegenDisabled } from 'xstate';
+import { BaseActionObject, ResolveTypegenMeta, ServiceMap, State, StateMachine, StateSchema, TypegenDisabled } from 'xstate';
 
 export type CoordinatorMachine = StateMachine<
   UploadCoordinatorMachineContext,
@@ -11,6 +11,9 @@ export type CoordinatorMachine = StateMachine<
 >;
 
 export type UploadCoordinatorMachineContext = {} | WithErrorMsg | WithDestinationPath | (WithErrorMsg & WithDestinationPath);
+
+export type UploadCoordinatorMachineStateInProgress = 'fetchingPath' | 'uploadingFile' | 'notifying';
+export type UploadCoordinatorMachineState = UploadCoordinatorMachineStateInProgress | 'done';
 
 export type UploadCoordinatorMachineTypeState =
   | {
@@ -28,10 +31,6 @@ export type UploadCoordinatorMachineTypeState =
   | {
       value: 'done';
       context: WithErrorMsg;
-    }
-  | {
-      value: 'failed';
-      context: { destinationPath?: string; error: string };
     };
 
 type EventFetchingPathDone = { type: 'done.invoke.invokeFetchingPath' };
@@ -57,3 +56,11 @@ type WithErrorMsg = { message: string };
 export type WithDestinationPath = { destinationPath: string };
 
 type EventWithErrorMsg = { data: WithErrorMsg };
+
+export type UploadCoordinatorState = State<
+  UploadCoordinatorMachineContext,
+  UploadCoordinatorMachineEvent,
+  StateSchema<UploadCoordinatorMachineContext>,
+  UploadCoordinatorMachineTypeState,
+  ResolveTypegenMeta<TypegenDisabled, UploadCoordinatorMachineEvent, BaseActionObject, ServiceMap>
+>;
