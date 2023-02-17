@@ -7,35 +7,42 @@ import { fileUploadCoordinatorMachine } from './services/machine';
 
 function createUploadMockCallback(file: File) {
   return async function uploadFileMock(path: string) {
-    await new Promise((resolve) =>
-      setTimeout(() => {
-        console.log('uploadFileMock: done', path, file);
-        resolve('');
-      }, 5_000)
-    );
+    const body = new FormData();
+    body.append('file', file);
+
+    await fetch(path, {
+      method: 'POST',
+      body,
+    });
+    // await new Promise((resolve) =>
+    //   setTimeout(() => {
+    //     console.log('uploadFileMock: done', path, file);
+    //     resolve('');
+    //   }, 5_000)
+    // );
   };
 }
 
 async function fetchDestinationPath() {
-  await new Promise((resolve) =>
-    setTimeout(() => {
-      console.log('fetchDestinationPath: done');
-      resolve('');
-    }, 5_000)
-  );
+  // await new Promise((resolve) =>
+  //   setTimeout(() => {
+  //     console.log('fetchDestinationPath: done');
+  //     resolve('');
+  //   }, 5_000)
+  // );
   const path = await fetch('http://localhost:3000/path').then((res) => res.json());
   console.log('fetched upload path', path);
   return path;
 }
 
-async function callNotificationApi(path: string) {
-  await new Promise((resolve) =>
-    setTimeout(() => {
-      console.log('callNotificationApi: done', path);
-      resolve('');
-    }, 5_000)
-  );
-  await fetch(path);
+async function callNotificationApi(_path: string) {
+  // await new Promise((resolve) =>
+  //   setTimeout(() => {
+  //     console.log('callNotificationApi: done', _path);
+  //     resolve('');
+  //   }, 5_000)
+  // );
+  await fetch('http://localhost:3000/notify', { method: 'POST' });
 }
 
 type MachineFactory = (file: File) => CoordinatorMachine;

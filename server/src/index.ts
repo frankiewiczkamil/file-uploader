@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import cors from 'cors';
+import { uploadRoute } from './upload.js';
 
 const app: Express = express();
 app.use(cors());
@@ -11,8 +12,9 @@ app
   .get('/path', (req: Request, res: Response) => {
     res.send({ path: `http://localhost:3000/upload/${uuid()}` });
   })
-  .get('/upload/:id', (req: Request, res: Response) => {
-    res.send(req.params['id']);
+  .post('/upload/:id', uploadRoute)
+  .post('/notify', (req: Request, res: Response) => {
+    res.send({ message: 'roger roger' });
   });
 
 app.listen(port, () => {
