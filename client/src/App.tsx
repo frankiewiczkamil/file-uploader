@@ -4,24 +4,7 @@ import React, { FC } from 'react';
 import createFilePicker from './components/FilePicker';
 import { CoordinatorMachine } from './services/UploadCoordinatorMachine';
 import { fileUploadCoordinatorMachine } from './services/machine';
-
-function createUploadMockCallback(file: File) {
-  return async function uploadFileMock(path: string) {
-    const body = new FormData();
-    body.append('file', file);
-
-    await fetch(path, {
-      method: 'POST',
-      body,
-    });
-    // await new Promise((resolve) =>
-    //   setTimeout(() => {
-    //     console.log('uploadFileMock: done', path, file);
-    //     resolve('');
-    //   }, 5_000)
-    // );
-  };
-}
+import { createUploadFileEffect } from './services/upload/effects/uploadFile';
 
 async function fetchDestinationPath() {
   // await new Promise((resolve) =>
@@ -46,7 +29,7 @@ async function callNotificationApi(_path: string) {
 }
 
 type MachineFactory = (file: File) => CoordinatorMachine;
-const machineFactory: MachineFactory = (file) => fileUploadCoordinatorMachine(fetchDestinationPath, createUploadMockCallback(file), callNotificationApi);
+const machineFactory: MachineFactory = (file) => fileUploadCoordinatorMachine(fetchDestinationPath, createUploadFileEffect(file), callNotificationApi);
 const FileLoadingContainer = createFileLoadingContainer(machineFactory);
 
 const FileComponent: FC<{ file: File }> = (props) => (

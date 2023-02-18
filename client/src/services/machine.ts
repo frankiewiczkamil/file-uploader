@@ -1,7 +1,7 @@
 import { ActorRef, assign, createMachine, DoneInvokeEvent } from 'xstate';
 import { destinationMachine, FetchDestinationPath } from './destination/destinationMachine';
 import { CallNotificationApi, notificationMachine } from './notification/notificationMachine';
-import { UploadFile, uploadMachine } from './upload/uploadMachine';
+import { uploadMachine } from './upload/uploadMachine';
 import {
   UploadCoordinatorMachineContext,
   UploadCoordinatorMachineEvent,
@@ -9,6 +9,7 @@ import {
   UploadCoordinatorState,
   WithDestinationPath,
 } from './UploadCoordinatorMachine';
+import { UploadFileEffect } from './upload/UploadFile';
 
 const addDestinationPathToCtx = assign({
   destinationPath: (_ctx, event: DoneInvokeEvent<string>) => event.data,
@@ -26,7 +27,11 @@ export const getCurrentActorRef = (state: UploadCoordinatorState): ActorRef<any>
   const handlerMachineId = invokingIdByState[state.value as string];
   return state.children[handlerMachineId];
 };
-export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinationPath, uploadFile: UploadFile, callNotificationApi: CallNotificationApi) =>
+export const fileUploadCoordinatorMachine = (
+  fetchDestinationPath: FetchDestinationPath,
+  uploadFile: UploadFileEffect,
+  callNotificationApi: CallNotificationApi
+) =>
   /** @xstate-layout N4IgpgJg5mDOIC5QFsCGBLAdgOgGZgBcBjACyygAVUCSBiCAe0zGywDcGBrF9rsAMUKlyVGgG0ADAF1EoAA4NY6AuiayQAD0QAmCQDZs+7QFYAjNvMBmPRIkBOYwBoQAT0QAOS4e2WALJYB2PTsA92NjTwBfSOc0LGwAVzkAGwZUCHJ+dGSweiYeTA5uVkK+AFUUtIzMKCycyRkkEAUlFTUmrQQbCWxtdztzYzs9fqC9ZzcEU31DW1szU3cbYb1o2IwcTAYVXBdyPOYSooLjgDlt9F3yBvUW5VVMdU67EN69Yz1dS3dtPT-x1yIaYGObzUyLZZ-aIxEBbCBwdRxR5NO5tZGgToAWgBk2xaxASLwQjINVEJFuinu7QxiF82gmHlM2GMc1Mfgkpj0dMsxnxhKSqXSmWyYAprQeT1p1l6vz0bPcvmMgQ+DIQ7iZLNsbN8HK5Pl5MMJWx2exqYqp6M0HksXi+piC9oGxm0AVV6uZrPZnO5BvW8UYzHNaMlU102l6wwCQXVI08rsBUwkXgCvhe7ncAWm5mmvmhkSAA */
   createMachine<UploadCoordinatorMachineContext, UploadCoordinatorMachineEvent, UploadCoordinatorMachineTypeState>({
     predictableActionArguments: true,
@@ -54,8 +59,11 @@ export const fileUploadCoordinatorMachine = (fetchDestinationPath: FetchDestinat
           autoForward: true,
           id: invokingIdByState.uploadingFile,
           src: uploadMachine.withConfig({
+            actions: {
+              cancel: uploadFile.cancel,
+            },
             services: {
-              uploadFile,
+              uploadFile: uploadFile.run,
             },
           }),
           data: selectDestinationPathFromCtx,

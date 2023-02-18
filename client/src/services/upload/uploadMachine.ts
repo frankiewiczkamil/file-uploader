@@ -45,6 +45,7 @@ export const uploadMachine =
         on: {
           CANCEL_REQUESTED: {
             target: 'canceled',
+            actions: 'cancel',
           },
         },
       },
