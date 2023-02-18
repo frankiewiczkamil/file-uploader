@@ -1,7 +1,6 @@
 import { destinationMachine, EventDone, EventFailed } from './destinationMachine';
-import { assert, describe, it } from 'vitest';
-import { interpret, Interpreter } from 'xstate';
-import { isPending } from '../common';
+import { assert, describe, it, vi } from 'vitest';
+import { interpret } from 'xstate';
 
 describe(
   'destinationMachine',
@@ -28,13 +27,13 @@ describe(
     });
     it('should end with failed state when service callback breaks', async () => {
       const expectedErrorMsg = 'zonk';
-      const machine = destinationMachine.withConfig({
-        services: {
-          fetchDestinationPath: async function () {
-            throw new Error(expectedErrorMsg);
-          },
+      const services = {
+        fetchDestinationPath: async function () {
+          throw new Error(expectedErrorMsg);
         },
-      });
+      };
+      const effectSpy = vi.spyOn(services, 'fetchDestinationPath');
+      const machine = destinationMachine.withConfig({ services });
       const receivedErrorMsg = await new Promise((resolve) =>
         interpret(machine)
           .onTransition((state, event) => {
@@ -44,40 +43,35 @@ describe(
           })
           .start()
       );
+      assert.equal(effectSpy.mock.calls.length, 1);
       assert.equal(receivedErrorMsg, expectedErrorMsg);
     });
     it('should end with canceled state when cancel event is sent', async () => {
-      let finished = false;
-      const machine = destinationMachine.withConfig({
-        services: {
-          fetchDestinationPath: async function () {
-            const result = (await new Promise((resolve) => {
-              function onFinishedCallback() {
-                finished = true;
-                resolve({ path: 'path' });
-              }
-
-              setTimeout(onFinishedCallback, 3000);
-            })) as { path: string };
-            return result;
-          },
+      const services = {
+        fetchDestinationPath: function () {
+          return new Promise((resolve, _reject) => {
+            setImmediate(() => resolve({ path: 'path' })); // immediate is not so immediate, process.nextTick goes first
+          }) as Promise<{ path: 'path' }>;
         },
+      };
+      const effectSpy = vi.spyOn(services, 'fetchDestinationPath');
+      const machine = destinationMachine.withConfig({
+        services,
       });
-      let interpretedMachine: Interpreter<any, any, any, any, any>;
       const task = new Promise((resolve) => {
-        interpretedMachine = interpret(machine)
+        const interpretedMachine = interpret(machine)
           .onTransition((state, _event) => {
             if (state.matches('canceled')) {
-              resolve(undefined);
+              resolve(state.value);
             }
           })
           .start();
-        setImmediate(() => interpretedMachine.send('CANCEL_REQUESTED'));
+        process.nextTick(() => {
+          interpretedMachine.send('CANCEL_REQUESTED');
+        });
       });
-      assert.isTrue(await isPending(task));
-      await task;
-      assert.isFalse(await isPending(task));
-      assert.isFalse(finished);
+      assert.equal(effectSpy.mock.calls.length, 1);
+      assert.equal(await task, 'canceled');
     });
   },
   { timeout: 10 }
