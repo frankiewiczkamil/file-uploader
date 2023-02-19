@@ -18,6 +18,11 @@ const upload = multer({ storage }).any();
 
 export function uploadRoute(req: Request, res: Response) {
   upload(req, res, function (err) {
-    res.send(err || 'ack');
+    if (err) {
+      res.status(500);
+      res.send({ msg: err });
+    } else {
+      res.send({ msg: 'successfully uploaded' });
+    }
   });
 }
