@@ -3,39 +3,11 @@ import { assert, describe, it } from 'vitest';
 import { interpret } from 'xstate';
 import { WithDestinationPath } from './UploadCoordinatorMachine';
 import { createBrokenUploadFunctionCallback, createUploadFileEffectMock } from './upload/effects/uploadFileMock';
+import { createBrokenFetchDestinationPathCallback, createFetchDestinationPatchMock } from './destination/effects/fetchDestinationPathMock';
+import { callNotificationApiMock, createBrokenNotifyingCallback } from './notification/effects/callNotificationApiMock';
 
 const destinationPath = 'mocked path';
 const FAILURE_ATTEMPTS = 3;
-
-async function fetchDestinationPath() {
-  return { path: destinationPath };
-}
-
-async function callNotificationApi(_arg: string) {
-  await Promise.resolve();
-}
-
-function createBrokenFetchDestinationPathCallback() {
-  let attempt = 0;
-  return async function brokenFetchDestinationPathCallback() {
-    if (attempt < FAILURE_ATTEMPTS) {
-      attempt++;
-      throw new Error('error');
-    } else {
-      return { path: destinationPath };
-    }
-  };
-}
-
-function createBrokenNotifyingCallback() {
-  let attempt = 0;
-  return async function brokenNotifyingCallback() {
-    if (attempt < FAILURE_ATTEMPTS) {
-      attempt++;
-      throw new Error('error');
-    }
-  };
-}
 
 describe(
   'coordinator machine',
@@ -43,7 +15,11 @@ describe(
     it('should go through all the states when there is no failure in sub machines', async () => {
       let uploadingCtx;
       let notifyingCtx;
-      const machineDefinition = fileUploadCoordinatorMachine(fetchDestinationPath, createUploadFileEffectMock(), callNotificationApi);
+      const machineDefinition = fileUploadCoordinatorMachine(
+        createFetchDestinationPatchMock(destinationPath),
+        createUploadFileEffectMock(),
+        callNotificationApiMock
+      );
       await new Promise((resolve) => {
         interpret(machineDefinition)
           .onTransition((state, _event) => {
@@ -64,7 +40,11 @@ describe(
     });
 
     it('should be able to retry on fetching destination path failure', async () => {
-      const machineDefinition = fileUploadCoordinatorMachine(createBrokenFetchDestinationPathCallback(), createUploadFileEffectMock(), callNotificationApi);
+      const machineDefinition = fileUploadCoordinatorMachine(
+        createBrokenFetchDestinationPathCallback(destinationPath, FAILURE_ATTEMPTS),
+        createUploadFileEffectMock(),
+        callNotificationApiMock
+      );
       await new Promise((resolve) => {
         const interpretedMachine = interpret(machineDefinition)
           .onTransition((state, _event) => {
@@ -80,7 +60,11 @@ describe(
     });
 
     it('should be able to retry on uploading file failure', async () => {
-      const machineDefinition = fileUploadCoordinatorMachine(fetchDestinationPath, createBrokenUploadFunctionCallback(FAILURE_ATTEMPTS), callNotificationApi);
+      const machineDefinition = fileUploadCoordinatorMachine(
+        createFetchDestinationPatchMock(destinationPath),
+        createBrokenUploadFunctionCallback(FAILURE_ATTEMPTS),
+        callNotificationApiMock
+      );
       await new Promise((resolve) => {
         const interpretedMachine = interpret(machineDefinition)
           .onTransition((state, _event) => {
@@ -96,7 +80,11 @@ describe(
     });
 
     it('should be able to retry on notifying failure', async () => {
-      const machineDefinition = fileUploadCoordinatorMachine(fetchDestinationPath, createUploadFileEffectMock(), createBrokenNotifyingCallback());
+      const machineDefinition = fileUploadCoordinatorMachine(
+        createFetchDestinationPatchMock(destinationPath),
+        createUploadFileEffectMock(),
+        createBrokenNotifyingCallback(FAILURE_ATTEMPTS)
+      );
       await new Promise((resolve) => {
         const interpretedMachine = interpret(machineDefinition)
           .onTransition((state, _event) => {

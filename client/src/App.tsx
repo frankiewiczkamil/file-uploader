@@ -5,28 +5,8 @@ import createFilePicker from './components/FilePicker';
 import { CoordinatorMachine } from './services/UploadCoordinatorMachine';
 import { fileUploadCoordinatorMachine } from './services/machine';
 import { createUploadFileEffect, ProgressListener } from './services/upload/effects/uploadFile';
-
-async function fetchDestinationPath() {
-  // await new Promise((resolve) =>
-  //   setTimeout(() => {
-  //     console.log('fetchDestinationPath: done');
-  //     resolve('');
-  //   }, 5_000)
-  // );
-  const path = await fetch('http://localhost:3000/path').then((res) => res.json());
-  console.log('fetched upload path', path);
-  return path;
-}
-
-async function callNotificationApi(_path: string) {
-  // await new Promise((resolve) =>
-  //   setTimeout(() => {
-  //     console.log('callNotificationApi: done', _path);
-  //     resolve('');
-  //   }, 5_000)
-  // );
-  await fetch('http://localhost:3000/notify', { method: 'POST' });
-}
+import { callNotificationApi } from './services/notification/effects/callNotificationApi';
+import { fetchDestinationPath } from './services/destination/effects/fetchDestinationPath';
 
 type MachineFactory = (file: File, listener: ProgressListener) => CoordinatorMachine;
 const machineFactory: MachineFactory = (file, listener) =>
