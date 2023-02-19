@@ -1,9 +1,13 @@
 import multer from 'multer';
 import { Request, Response } from 'express';
+import * as fs from 'fs';
+
+const FILES_DIR = 'tmp';
 
 const storage = multer.diskStorage({
   destination: function (_req, _file, cb) {
-    cb(null, 'tmp');
+    fs.mkdirSync(FILES_DIR, { recursive: true });
+    cb(null, FILES_DIR);
   },
   filename: function (req, file, cb) {
     cb(null, `${file.originalname}-${req.params['id']}`);
