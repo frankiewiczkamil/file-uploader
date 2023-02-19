@@ -1,4 +1,8 @@
-export function createUploadFileEffect(file: File) {
+import axios from 'axios';
+
+export type ProgressListener = (progress: number | undefined) => void;
+
+export function createUploadFileEffect(file: File, onProgressChange: ProgressListener) {
   let controller = new AbortController();
   const getCurrentSignalRef = () => controller.signal;
   return {
@@ -6,10 +10,12 @@ export function createUploadFileEffect(file: File) {
       const body = new FormData();
       body.append('file', file);
 
-      await fetch(path, {
-        method: 'POST',
-        body,
+      await axios.request({
+        method: 'post',
+        url: path,
+        data: body,
         signal: getCurrentSignalRef(),
+        onUploadProgress: ({ progress }) => onProgressChange && onProgressChange(progress),
       });
     },
     cancel: () => {

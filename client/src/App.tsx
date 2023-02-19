@@ -4,7 +4,7 @@ import React, { FC } from 'react';
 import createFilePicker from './components/FilePicker';
 import { CoordinatorMachine } from './services/UploadCoordinatorMachine';
 import { fileUploadCoordinatorMachine } from './services/machine';
-import { createUploadFileEffect } from './services/upload/effects/uploadFile';
+import { createUploadFileEffect, ProgressListener } from './services/upload/effects/uploadFile';
 
 async function fetchDestinationPath() {
   // await new Promise((resolve) =>
@@ -28,8 +28,9 @@ async function callNotificationApi(_path: string) {
   await fetch('http://localhost:3000/notify', { method: 'POST' });
 }
 
-type MachineFactory = (file: File) => CoordinatorMachine;
-const machineFactory: MachineFactory = (file) => fileUploadCoordinatorMachine(fetchDestinationPath, createUploadFileEffect(file), callNotificationApi);
+type MachineFactory = (file: File, listener: ProgressListener) => CoordinatorMachine;
+const machineFactory: MachineFactory = (file, listener) =>
+  fileUploadCoordinatorMachine(fetchDestinationPath, createUploadFileEffect(file, listener), callNotificationApi);
 const FileLoadingContainer = createFileLoadingContainer(machineFactory);
 
 const FileComponent: FC<{ file: File }> = (props) => (
