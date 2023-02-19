@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "concurrently '(cd server && npm run transpile:watch)' '(cd server && npm run dev)' '(cd client && npm run dev)' '(cd client && npm run generateTypes:watch)'",
     "build": "concurrently '(cd server && npm run build)' '(cd client && npm run generateTypes && npm run build)'",
-    "start": "concurrently '(cd server && npm run start)' '(cd client && npm run preview)'"
+    "start": "concurrently '(cd server && npm run start)' '(cd client && npm run preview)'",
+    "postinstall": "concurrently '(cd server && npm install)' '(cd client && npm install)'"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",
