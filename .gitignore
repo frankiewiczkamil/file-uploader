@@ -118,3 +118,5 @@ dist-ssr
 *.sw?
 
 *.typegen.ts
+
+tmp
