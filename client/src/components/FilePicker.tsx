@@ -15,7 +15,7 @@ function createFilePicker(FileComponentImpl: FC<{ file: File }>) {
     };
 
     return (
-      <>
+      <div>
         <input type="file" onChange={onInputChange} multiple />
         <ul>
           {files.map((file) => (
@@ -24,7 +24,7 @@ function createFilePicker(FileComponentImpl: FC<{ file: File }>) {
             </li>
           ))}
         </ul>
-      </>
+      </div>
     );
   };
 }

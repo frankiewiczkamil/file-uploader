@@ -1,6 +1,6 @@
 import './App.css';
 import { createFileLoadingContainer } from './components/FileLoading';
-import React, { FC } from 'react';
+import React from 'react';
 import createFilePicker from './components/FilePicker';
 import { CoordinatorMachine } from './services/UploadCoordinatorMachine';
 import { createFileUploadCoordinatorMachine } from './services/machine';
@@ -13,13 +13,7 @@ const machineFactory: MachineFactory = (file, listener) =>
   createFileUploadCoordinatorMachine(fetchDestinationPath, createUploadFileEffect(file, listener), callNotificationApi);
 const FileLoadingContainer = createFileLoadingContainer(machineFactory);
 
-const FileComponent: FC<{ file: File }> = (props) => (
-  <>
-    {props.file.name}
-    <FileLoadingContainer file={props.file} />
-  </>
-);
-const FilePicker = createFilePicker(FileComponent);
+const FilePicker = createFilePicker(FileLoadingContainer);
 
 function App() {
   return (
