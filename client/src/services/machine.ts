@@ -27,7 +27,7 @@ export const getCurrentActorRef = (state: UploadCoordinatorState): ActorRef<any>
   const handlerMachineId = invokingIdByState[state.value as string];
   return state.children[handlerMachineId];
 };
-export const fileUploadCoordinatorMachine = (
+export const createFileUploadCoordinatorMachine = (
   fetchDestinationPath: FetchDestinationPath,
   uploadFile: UploadFileEffect,
   callNotificationApi: CallNotificationApi

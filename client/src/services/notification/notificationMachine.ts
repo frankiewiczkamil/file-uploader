@@ -37,9 +37,7 @@ export const notificationMachine =
         invoke: {
           id: 'invokeNotify',
           src: 'callNotificationApi',
-          onDone: {
-            target: 'done',
-          },
+          onDone: 'done',
           onError: 'failed',
         },
         on: {

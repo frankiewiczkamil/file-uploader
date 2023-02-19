@@ -1,4 +1,4 @@
-import { fileUploadCoordinatorMachine } from './machine';
+import { createFileUploadCoordinatorMachine } from './machine';
 import { assert, describe, it } from 'vitest';
 import { interpret } from 'xstate';
 import { WithDestinationPath } from './UploadCoordinatorMachine';
@@ -15,7 +15,7 @@ describe(
     it('should go through all the states when there is no failure in sub machines', async () => {
       let uploadingCtx;
       let notifyingCtx;
-      const machineDefinition = fileUploadCoordinatorMachine(
+      const machineDefinition = createFileUploadCoordinatorMachine(
         createFetchDestinationPatchMock(destinationPath),
         createUploadFileEffectMock(),
         callNotificationApiMock
@@ -40,7 +40,7 @@ describe(
     });
 
     it('should be able to retry on fetching destination path failure', async () => {
-      const machineDefinition = fileUploadCoordinatorMachine(
+      const machineDefinition = createFileUploadCoordinatorMachine(
         createBrokenFetchDestinationPathCallback(destinationPath, FAILURE_ATTEMPTS),
         createUploadFileEffectMock(),
         callNotificationApiMock
@@ -60,7 +60,7 @@ describe(
     });
 
     it('should be able to retry on uploading file failure', async () => {
-      const machineDefinition = fileUploadCoordinatorMachine(
+      const machineDefinition = createFileUploadCoordinatorMachine(
         createFetchDestinationPatchMock(destinationPath),
         createBrokenUploadFunctionCallback(FAILURE_ATTEMPTS),
         callNotificationApiMock
@@ -80,7 +80,7 @@ describe(
     });
 
     it('should be able to retry on notifying failure', async () => {
-      const machineDefinition = fileUploadCoordinatorMachine(
+      const machineDefinition = createFileUploadCoordinatorMachine(
         createFetchDestinationPatchMock(destinationPath),
         createUploadFileEffectMock(),
         createBrokenNotifyingCallback(FAILURE_ATTEMPTS)
