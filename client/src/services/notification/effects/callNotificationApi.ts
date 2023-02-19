@@ -1,5 +1,7 @@
+import { NOTIFICATION_ENDPOINT } from '../../../config';
+
 export function callNotificationApi(path: string) {
-  return fetch('http://localhost:3000/notify', {
+  return fetch(NOTIFICATION_ENDPOINT, {
     method: 'POST',
     body: JSON.stringify({ uploaded: path }),
   }).then((res) => res.json());
