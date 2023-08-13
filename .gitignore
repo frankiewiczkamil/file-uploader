@@ -120,3 +120,6 @@ dist-ssr
 *.typegen.ts
 
 tmp
+
+# ssl certificates
+certs/

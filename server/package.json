@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "transpile": "tsc",
-    "start": "node dist/index.js",
+    "start": "./generate-cert.sh && node dist/index.js",
     "transpile:watch": "tsc --watch",
-    "dev": "nodemon -q dist/index.js"
+    "dev": "./generate-cert.sh && nodemon -q dist/index.js"
   },
   "keywords": [],
   "author": "",
